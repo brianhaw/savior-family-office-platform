@@ -32,11 +32,50 @@ for _, row in questions.iterrows():
     qid = row["ID"]
     question = row["Question"]
 
-    responses[qid] = st.number_input(
-        question,
-        min_value=0.0,
-        step=1.0,
-        key=qid
+for _, row in questions.iterrows():
+    qid = row["ID"]
+    question = row["Question"]
+    qtype = row["Type"]
+
+    if qtype == "currency":
+        responses[qid] = st.number_input(
+            question,
+            min_value=0.0,
+            step=10000.0,
+            key=qid
+        )
+
+    elif qtype == "percent":
+        responses[qid] = st.number_input(
+            question,
+            min_value=0.0,
+            max_value=100.0,
+            step=1.0,
+            key=qid
+        )
+
+    elif qtype == "score10":
+        responses[qid] = st.slider(
+            question,
+            min_value=0,
+            max_value=10,
+            value=5,
+            key=qid
+        )
+
+    elif qtype == "yesno":
+        responses[qid] = st.checkbox(
+            question,
+            key=qid
+        )
+
+    else:
+        responses[qid] = st.number_input(
+            question,
+            min_value=0.0,
+            step=1.0,
+            key=qid
+        )
     )
 
 # Evaluate
