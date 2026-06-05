@@ -4,53 +4,31 @@ import streamlit as st
 from scoring.question_loader import load_questions
 from scoring.business_quality import calculate_business_quality
 
-# --------------------------------------------------
-# PAGE CONFIG
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Savior Family Office",
     page_icon="✝️",
     layout="wide"
 )
 
-# --------------------------------------------------
-# LOGO
-# --------------------------------------------------
-
-import os
-
+# Logo
 logo_path = os.path.join(os.path.dirname(__file__), "savior_logo.png")
 
-st.image(logo_path, width=300)
 if os.path.exists(logo_path):
     st.image(logo_path, width=300)
 
-# --------------------------------------------------
-# HEADER
-# --------------------------------------------------
-
+# Header
 st.title("Savior Family Office")
 st.subheader("Investment Evaluation Platform")
-
 st.divider()
 
-# --------------------------------------------------
-# LOAD QUESTIONS
-# --------------------------------------------------
-
+# Load Questions
 questions = load_questions()
-
 responses = {}
 
 st.header("Dynamic Investment Questionnaire")
 
-# --------------------------------------------------
-# BUILD QUESTIONNAIRE
-# --------------------------------------------------
-
+# Build Questionnaire
 for _, row in questions.iterrows():
-
     qid = row["ID"]
     question = row["Question"]
 
@@ -61,18 +39,11 @@ for _, row in questions.iterrows():
         key=qid
     )
 
-# --------------------------------------------------
-# EVALUATE
-# --------------------------------------------------
-
+# Evaluate
 if st.button("Evaluate Investment"):
-
-    business_results = calculate_business_quality(
-        responses
-    )
+    business_results = calculate_business_quality(responses)
 
     st.divider()
-
     st.header("Investment Evaluation Results")
 
     st.metric(
@@ -84,10 +55,8 @@ if st.button("Evaluate Investment"):
 
     if score >= 8:
         st.success("Recommendation: STRONG BUSINESS QUALITY")
-
     elif score >= 6:
         st.warning("Recommendation: MODERATE BUSINESS QUALITY")
-
     else:
         st.error("Recommendation: WEAK BUSINESS QUALITY")
 
