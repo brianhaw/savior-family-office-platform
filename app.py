@@ -22,10 +22,7 @@ import os
 
 logo_path = os.path.join(os.path.dirname(__file__), "savior_logo.png")
 
-st.write("Logo path:", logo_path)
-st.write("Current folder:", os.getcwd())
-st.write("Files in folder:", os.listdir(os.path.dirname(__file__)))
-st.write("Logo exists:", os.path.exists(logo_path))
+st.image(logo_path, width=300)
 if os.path.exists(logo_path):
     st.image(logo_path, width=300)
 
