@@ -1,8 +1,8 @@
 import os
 import streamlit as st
 
-from question_loader import load_questions
-from business_quality import calculate_business_quality
+from scoring.question_loader import load_questions
+from scoring.business_quality import calculate_business_quality
 
 # --------------------------------------------------
 # PAGE CONFIG
