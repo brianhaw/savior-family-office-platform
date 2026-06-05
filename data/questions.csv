@@ -40,3 +40,7 @@ FIT003,Strategic Fit,Family Office Flywheel Score,4,score10
 FIT004,Strategic Fit,Distance from Maryland Miles,3,number
 FIT005,Strategic Fit,Time Burden Hours Per Month,4,number
 FIT006,Strategic Fit,Sleep Well At Night Score,5,score10
+DD001,Due Diligence,Company Website,0,text
+DD002,Due Diligence,CEO or Founder Name,0,text
+DD003,Due Diligence,Company State,0,text
+DD004,Due Diligence,Industry,0,text
