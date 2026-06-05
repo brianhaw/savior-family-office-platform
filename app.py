@@ -29,15 +29,13 @@ st.header("Dynamic Investment Questionnaire")
 
 # Build Questionnaire
 for _, row in questions.iterrows():
-    qid = row["ID"]
-    question = row["Question"]
 
-for _, row in questions.iterrows():
     qid = row["ID"]
     question = row["Question"]
     qtype = row["Type"]
 
     if qtype == "currency":
+
         responses[qid] = st.number_input(
             question,
             min_value=0.0,
@@ -46,6 +44,7 @@ for _, row in questions.iterrows():
         )
 
     elif qtype == "percent":
+
         responses[qid] = st.number_input(
             question,
             min_value=0.0,
@@ -55,6 +54,7 @@ for _, row in questions.iterrows():
         )
 
     elif qtype == "score10":
+
         responses[qid] = st.slider(
             question,
             min_value=0,
@@ -64,19 +64,20 @@ for _, row in questions.iterrows():
         )
 
     elif qtype == "yesno":
+
         responses[qid] = st.checkbox(
             question,
             key=qid
         )
 
     else:
+
         responses[qid] = st.number_input(
             question,
             min_value=0.0,
             step=1.0,
             key=qid
         )
-    )
 
 # Evaluate
 if st.button("Evaluate Investment"):
