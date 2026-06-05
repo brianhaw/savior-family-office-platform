@@ -19,7 +19,7 @@ layout="wide"
 
 # --------------------------------------------------
 
-logo_path = os.path.join(os.path.dirname(**file**), "savior_logo.png")
+logo_path = os.path.join(os.path.dirname(__file__), "savior_logo.png")
 
 if os.path.exists(logo_path):
 st.image(logo_path, width=300)
