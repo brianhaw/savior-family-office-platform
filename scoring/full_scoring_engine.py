@@ -71,7 +71,10 @@ def calculate_full_score(responses):
         ) / 6
     )
 
-    tax_score = clamp((tax_shelter * 0.5) + (after_tax_roi / 30 * 5))
+    tax_score = clamp(
+        (tax_shelter * 0.5)
+        + (after_tax_roi / 30 * 5)
+    )
 
     fit_score = clamp(
         (strategic_fit * 0.35)
@@ -117,15 +120,34 @@ def calculate_full_score(responses):
         red_flags.append("High exit friction")
 
     if overall >= 8.5:
-        recommendation = "STRONG BUY"
-    elif overall >= 7.5:
+        rating_name = "Unicorn"
+        rating_icon = "🦄"
         recommendation = "BUY"
-    elif overall >= 6.5:
-        recommendation = "DUE DILIGENCE"
-    elif overall >= 5:
+        rationale = "Exceptional opportunity"
+
+    elif overall >= 7.0:
+        rating_name = "Whale"
+        rating_icon = "🐋"
+        recommendation = "CONSIDER BUYING"
+        rationale = "Large attractive opportunity"
+
+    elif overall >= 5.5:
+        rating_name = "Caterpillar"
+        rating_icon = "🐛"
+        recommendation = "INVESTIGATE FURTHER"
+        rationale = "Potentially valuable but not fully proven"
+
+    elif overall >= 4.0:
+        rating_name = "Snake"
+        rating_icon = "🐍"
         recommendation = "WATCHLIST"
+        rationale = "Could bite you if you're not careful"
+
     else:
-        recommendation = "PASS"
+        rating_name = "Snake Oil"
+        rating_icon = "🛢️"
+        recommendation = "AVOID"
+        rationale = "Poor risk/reward profile"
 
     return {
         "Business Quality Score": round(business_score, 1),
@@ -135,6 +157,9 @@ def calculate_full_score(responses):
         "Tax Efficiency Score": round(tax_score, 1),
         "Family Office Fit Score": round(fit_score, 1),
         "Overall Score": overall,
+        "Rating Name": rating_name,
+        "Rating Icon": rating_icon,
+        "Rating Description": rationale,
         "Recommendation": recommendation,
         "Red Flags": red_flags
     }
