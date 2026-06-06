@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+
 import streamlit as st
 import pandas as pd
 
@@ -6,6 +8,7 @@ from scoring.question_loader import load_questions
 from scoring.business_quality import calculate_business_quality
 from scoring.red_flag_research import generate_red_flag_searches
 from scoring.full_scoring_engine import calculate_full_score
+from scoring.summary_judgment import generate_summary_judgment
 
 st.set_page_config(
     page_title="Savior Family Office",
@@ -21,6 +24,33 @@ if os.path.exists(logo_path):
 st.title("Savior Family Office")
 st.subheader("Investment Evaluation Platform")
 st.divider()
+
+with st.expander("Definitions / How to Use This Model"):
+    st.write("""
+    **EBITDA:** Earnings before interest, taxes, depreciation, and amortization. A proxy for operating profitability.
+
+    **Debt to EBITDA:** Measures leverage. Higher values mean the company may be carrying too much debt.
+
+    **Free Cash Flow:** Cash left after operating expenses and capital needs. Negative free cash flow is a warning sign.
+
+    **Customer Concentration:** Risk from relying too heavily on one or a few customers.
+
+    **Recurring Revenue:** Revenue that repeats predictably, such as subscriptions or contracts.
+
+    **Projected ROI:** Estimated return on investment.
+
+    **IRR:** Internal rate of return. Measures expected annualized return.
+
+    **Break-Even Years:** How long it may take to recover the original investment.
+
+    **NIMBY Risk:** Risk of public/community opposition.
+
+    **Exit Friction:** How hard it may be to get out of the deal.
+
+    **Contagion Risk:** Risk that this investment could damage existing businesses, reputation, liquidity, or operations.
+
+    **SWAN Score:** Sleep Well At Night score. Higher means the investment feels safer and less stressful.
+    """)
 
 st.header("Red Flag Research Engine")
 
@@ -102,6 +132,7 @@ for _, row in questions.iterrows():
 if st.button("Evaluate Investment"):
     business_results = calculate_business_quality(responses)
     full_results = calculate_full_score(responses)
+    summary_judgment = generate_summary_judgment(full_results)
 
     st.divider()
     st.header("Investment Evaluation Results")
@@ -126,7 +157,9 @@ if st.button("Evaluate Investment"):
             full_results["Recommendation"]
         )
 
-    st.divider()
+    st.subheader("Summary Judgment")
+    st.write(summary_judgment)
+
     st.subheader("Composite Scores")
     st.json(full_results)
 
@@ -142,23 +175,42 @@ if st.button("Evaluate Investment"):
     st.subheader("Detailed Responses")
     st.json(responses)
 
-    save_df = pd.DataFrame([responses])
+    history_row = {
+        "Date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Company Name": company_name,
+        "Website": website,
+        "CEO / Founder": ceo_name,
+        "State": state,
+        "Industry": industry,
+        "Overall Score": full_results["Overall Score"],
+        "Recommendation": full_results["Recommendation"],
+        "Summary Judgment": summary_judgment,
+        "Red Flags": "; ".join(full_results["Red Flags"]),
+        "Business Quality Score": full_results["Business Quality Score"],
+        "Deal Quality Score": full_results["Deal Quality Score"],
+        "Return Score": full_results["Return Score"],
+        "Risk / Execution Score": full_results["Risk / Execution Score"],
+        "Tax Efficiency Score": full_results["Tax Efficiency Score"],
+        "Family Office Fit Score": full_results["Family Office Fit Score"]
+    }
+
+    history_df = pd.DataFrame([history_row])
 
     if os.path.exists("investment_history.csv"):
         existing = pd.read_csv("investment_history.csv")
-        save_df = pd.concat(
-            [existing, save_df],
+        history_df = pd.concat(
+            [existing, history_df],
             ignore_index=True
         )
 
-    save_df.to_csv(
+    history_df.to_csv(
         "investment_history.csv",
         index=False
     )
 
     st.success("Investment saved to history.")
 
-    csv_data = save_df.to_csv(index=False).encode("utf-8")
+    csv_data = history_df.to_csv(index=False).encode("utf-8")
 
     st.download_button(
         label="Download Investment History",
