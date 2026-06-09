@@ -1,46 +1,21 @@
-ID,Category,Question,Weight,Type
-BQ001,Business Quality,Years in Business,5,number
-BQ002,Business Quality,Annual Revenue,5,currency
-BQ003,Business Quality,Revenue Growth %,4,percent
-BQ004,Business Quality,EBITDA,5,currency
-BQ005,Business Quality,EBITDA Margin %,4,percent
-BQ006,Business Quality,Free Cash Flow,5,currency
-BQ007,Business Quality,Debt,4,currency
-BQ008,Business Quality,Debt to EBITDA,5,number
-BQ009,Business Quality,Customer Concentration %,4,percent
-BQ010,Business Quality,Recurring Revenue %,4,percent
-BQ011,Business Quality,Founder Experience Score,3,score10
-BQ012,Business Quality,Financial Transparency Score,3,score10
-BQ013,Business Quality,Founder Character Score,4,score10
-DQ001,Deal Quality,Investment Amount Needed,5,currency
-DQ002,Deal Quality,Equity Stake %,5,percent
-DQ003,Deal Quality,Pre-Money Valuation,4,currency
-DQ004,Deal Quality,Post-Money Valuation,4,currency
-DQ005,Deal Quality,Board Seat,3,yesno
-DQ006,Deal Quality,Voting Rights,3,yesno
-DQ007,Deal Quality,Anti-Dilution Rights,3,yesno
-RA001,Return Analysis,Projected ROI %,5,percent
-RA002,Return Analysis,Projected IRR %,5,percent
-RA003,Return Analysis,Break-Even Years,5,number
-RA004,Return Analysis,Payback Period Years,4,number
-RA005,Return Analysis,Cash-on-Cash Return %,4,percent
-RISK001,Risk,Litigation Risk Score,4,score10
-RISK002,Risk,Regulatory Risk Score,5,score10
-RISK003,Risk,Political Risk Score,4,score10
-RISK004,Risk,NIMBY/Public Pushback Risk Score,5,score10
-RISK005,Risk,Key Person Risk Score,4,score10
-RISK006,Risk,Exit Friction Risk Score,5,score10
-RISK007,Risk,Contagion Risk to Existing Business,5,score10
-TAX001,Tax,Estimated Tax Liability %,4,percent
-TAX002,Tax,Tax Shelter Potential Score,4,score10
-TAX003,Tax,After-Tax ROI %,5,percent
-FIT001,Strategic Fit,Core Competency Fit Score,5,score10
-FIT002,Strategic Fit,Strategic Alignment Score,5,score10
-FIT003,Strategic Fit,Family Office Flywheel Score,4,score10
-FIT004,Strategic Fit,Distance from Maryland Miles,3,number
-FIT005,Strategic Fit,Time Burden Hours Per Month,4,number
-FIT006,Strategic Fit,Sleep Well At Night Score,5,score10
-DD001,Due Diligence,Company Website,0,text
-DD002,Due Diligence,CEO or Founder Name,0,text
-DD003,Due Diligence,Company State,0,text
-DD004,Due Diligence,Industry,0,text
+ID,Question,Type
+revenue,Annual Revenue,currency
+revenue_growth,Revenue Growth %,percent
+ebitda,EBITDA,currency
+free_cash_flow,Free Cash Flow,currency
+debt,Debt,currency
+recurring_revenue,Recurring Revenue %,percent
+investment_amount,Investment Amount Needed,currency
+equity_stake,Equity Stake %,percent
+projected_irr,Projected IRR %,percent
+payback_years,Payback Period Years,number
+founder_character,Founder Character Score,score10
+financial_transparency,Financial Transparency Score,score10
+strategic_alignment,Strategic Alignment Score,score10
+pick_shovel,Pick-and-Shovel Score,score10
+rollup_potential,Roll-Up Potential Score,score10
+estate_synergy,Estate Synergy Score,score10
+sleep_well,Sleep Well At Night Score,score10
+litigation_risk,Litigation Risk Score,score10
+regulatory_risk,Regulatory Risk Score,score10
+key_person_risk,Key Person Risk Score,score10
