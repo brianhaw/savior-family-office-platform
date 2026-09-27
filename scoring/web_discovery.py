@@ -1,11 +1,18 @@
 """On-demand Internet lead retrieval; search matches are not investment facts."""
 
 from datetime import datetime, timezone
+import re
 from urllib.parse import urlparse, urlunparse
 
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 BRAVE_URL = "https://api.search.brave.com/res/v1/web/search"
 FIRECRAWL_URL = "https://api.firecrawl.dev/v2/search"
+
+COMPANY_SIGNALS = re.compile(
+    r"^(?P<name>[A-Z][A-Za-z0-9&.,'’+ /-]{2,75}?)\s+"
+    r"(?:announces|secures|wins|signs|acquires|raises|launches|expands|"
+    r"reports|files|enters|lands|partners|unveils)\b", re.IGNORECASE
+)
 
 THEMES = {
     "1 · Capital Preservation": {
@@ -81,12 +88,54 @@ def normalize_firecrawl(payload, tier, theme, query):
             continue
         results.append({
             "title": item.get("title") or "Untitled page", "url": url,
-            "published": "Date not supplied", "source": urlparse(url).hostname,
+            "description": item.get("description") or "",
+            "published": item.get("publishedDate") or item.get("date") or "Date not supplied",
+            "source": urlparse(url).hostname,
             "tier": tier, "theme": theme, "query": query,
             "discovered_at": observed, "provider": "Firecrawl web search",
             "verification": "Search result only; underlying page not verified",
         })
     return results
+
+
+def company_name_from_title(title):
+    """Extract only a plainly named headline subject; otherwise leave unknown."""
+    match = COMPANY_SIGNALS.match((title or "").strip())
+    if not match:
+        return ""
+    name = match.group("name").strip(" :-")
+    if name.lower().startswith(("why ", "how ", "the ", "top ", "best ")):
+        return ""
+    return name
+
+
+def search_companies(tier, theme, firecrawl_key, count=10):
+    """Find named company announcements, retaining search-result provenance."""
+    import requests
+
+    if tier not in THEMES or theme not in THEMES[tier]:
+        raise ValueError("Choose a supported tier and theme")
+    if not firecrawl_key:
+        raise ValueError("Configure FIRECRAWL_API_KEY for company discovery")
+    if not 1 <= count <= 10:
+        raise ValueError("Count must be between 1 and 10")
+    query = (f"{theme} company announces contract secures customer acquisition "
+             f"funding 2026")
+    response = requests.post(FIRECRAWL_URL, json={
+        "query": query, "limit": count, "sources": ["web", "news"],
+    }, headers={"Authorization": f"Bearer {firecrawl_key}",
+                "Content-Type": "application/json"}, timeout=20)
+    response.raise_for_status()
+    payload = response.json()
+    if payload.get("success") is False:
+        raise ValueError("Search provider reported failure")
+    # Firecrawl groups web and news search results separately.
+    data = payload.get("data", {})
+    combined = {"data": {"web": data.get("web", []) + data.get("news", [])}}
+    leads = normalize_firecrawl(combined, tier, theme, query)
+    for lead in leads:
+        lead["candidate_name"] = company_name_from_title(lead["title"])
+    return leads
 
 
 def search_theme(tier, theme, brave_key="", count=12, firecrawl_key=""):
