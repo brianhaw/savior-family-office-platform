@@ -3,6 +3,7 @@
 import os
 from hashlib import sha256
 from io import BytesIO
+from urllib.parse import quote
 
 import pandas as pd
 import streamlit as st
@@ -11,6 +12,7 @@ from scoring.samson import ask_samson, briefing_prompt, history_context
 from scoring.discovery import latest_filings, lead_context
 from scoring.portfolio_office import conversation_context
 from scoring.web_discovery import THEMES, search_theme, search_companies, web_context
+from scoring.savior_screen import web_lead_screen
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -52,9 +54,20 @@ if st.session_state.get("company_leads"):
     for lead in st.session_state.company_leads:
         label = lead["candidate_name"] or "Company name needs review"
         with st.expander(f"{label} · {lead['title']}"):
+            screen = web_lead_screen(lead)
+            st.write(f"**Savior rating:** {screen['savior_rating']}")
+            st.write(f"**Chance of profit:** {screen['profit_probability']}")
+            st.write(f"**Risk:** {screen['risk']}")
+            st.write(f"**Questionnaire evidence:** {screen['known_inputs']}/{screen['total_inputs']} verified inputs from this search result. All {len(screen['unknown_hard_stops'])} hard-stop checks remain open.")
+            with st.expander("Savior information needed for a rating"):
+                for category, fields in screen["unknown_by_category"].items():
+                    st.write(f"**{category}:** {', '.join(fields)}")
             st.write(lead["description"] or "No search summary available.")
             st.write(f"Source: {lead['source']} · Published: {lead['published']}")
             st.link_button("Read source and verify company", lead["url"])
+            if lead["candidate_name"]:
+                st.link_button("Evaluate in Savior questionnaire",
+                               f"/?company={quote(lead['candidate_name'])}")
     st.caption("A named company may be public, private, a fund, or unavailable to invest in. Check the primary source, ticker or ownership, valuation, access, and Savior criteria before considering it.")
 if st.button("Search Internet sources"):
     try:

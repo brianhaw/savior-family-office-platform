@@ -30,6 +30,10 @@ source failure and continues with Firecrawl or Brave when a key is configured.
 With Firecrawl configured, "Find named companies" searches company-oriented
 announcements and labels a company only when the headline explicitly names its
 subject. These are unverified research leads, not available deals or buy ideas.
+Each lead shows a Savior evidence gate: an unrated status, unknown hard stops,
+and the financial/deal inputs required for a score. Explicitly named leads can
+open the Savior questionnaire with the name prefilled. A search headline never
+produces a fabricated profitability probability, risk rating, or Savior score.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page

@@ -167,7 +167,7 @@ with st.expander("Definitions / How to Use This Model"):
 
 st.header("Red Flag Research Engine")
 
-company_name = st.text_input("Company Name")
+company_name = st.text_input("Company Name", value=st.query_params.get("company", ""))
 website = st.text_input("Company Website")
 ceo_name = st.text_input("CEO / Founder Name")
 state = st.text_input("Company State")
