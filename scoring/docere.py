@@ -45,7 +45,7 @@ def history_context(history, limit=12):
     )
 
 
-def ask_docere(messages, context, api_key, model="gpt-6-astra"):
+def ask_docere(messages, context, api_key, model="gpt-6-sol"):
     if not api_key:
         raise ValueError("Configure OPENAI_API_KEY to enable Docere.")
     if not messages or messages[-1]["role"] != "user":
