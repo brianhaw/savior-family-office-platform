@@ -3,7 +3,6 @@
 import os
 from hashlib import sha256
 from io import BytesIO
-from urllib.parse import quote
 
 import pandas as pd
 import streamlit as st
@@ -14,6 +13,7 @@ from scoring.portfolio_office import conversation_context
 from scoring.web_discovery import THEMES, search_theme, search_companies, web_context
 from scoring.savior_screen import web_lead_screen
 from scoring.sec_evidence import research_public_company, sec_name_suggestions
+from scoring.savior_prefill import prepare_prefill
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -67,8 +67,12 @@ if st.session_state.get("company_leads"):
             st.write(f"Source: {lead['source']} · Published: {lead['published']}")
             st.link_button("Read source and verify company", lead["url"])
             if lead["candidate_name"]:
-                st.link_button("Evaluate in Savior questionnaire",
-                               f"/?company={quote(lead['candidate_name'])}")
+                if st.button("Evaluate in Savior questionnaire", key=f"savior_open_{lead['url']}"):
+                    prefill = prepare_prefill(lead, st.session_state.get("company_evidence", {}).get(lead["url"]))
+                    st.session_state["savior_prefill_context"] = prefill
+                    st.session_state["savior_prefill_pending"] = True
+                    st.session_state["savior_prefill_reviewed"] = False
+                    st.switch_page("app.py")
                 lookup = st.text_input("SEC company legal name or ticker",
                                        value=lead["candidate_name"], key=f"sec_lookup_{lead['url']}",
                                        help="If the headline uses a brand name, enter its public ticker or SEC legal name.")
