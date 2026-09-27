@@ -13,6 +13,7 @@ from scoring.discovery import latest_filings, lead_context
 from scoring.portfolio_office import conversation_context
 from scoring.web_discovery import THEMES, search_theme, search_companies, web_context
 from scoring.savior_screen import web_lead_screen
+from scoring.sec_evidence import research_public_company
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -68,6 +69,31 @@ if st.session_state.get("company_leads"):
             if lead["candidate_name"]:
                 st.link_button("Evaluate in Savior questionnaire",
                                f"/?company={quote(lead['candidate_name'])}")
+                if st.button("Check SEC financial evidence", key=f"sec_company_{lead['url']}",
+                             disabled=not (os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))):
+                    try:
+                        with st.spinner("Matching SEC registrant and annual financial facts..."):
+                            evidence = research_public_company(
+                                lead["candidate_name"], os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))
+                        st.session_state.setdefault("company_evidence", {})[lead["url"]] = evidence
+                    except Exception as exc:
+                        st.error(f"SEC evidence unavailable: {exc.__class__.__name__}")
+                if lead["url"] in st.session_state.get("company_evidence", {}):
+                    evidence = st.session_state.company_evidence[lead["url"]]
+                    if evidence is None:
+                        st.info("No unique SEC ticker match. This may be a private company, a fund, a different legal name, or an ambiguous name. No financial rating was calculated.")
+                    else:
+                        st.write(f"**SEC match:** {evidence['registrant']} ({evidence['ticker']}; CIK {evidence['cik']})")
+                        for label, key in (("Annual revenue", "revenue"), ("Free cash flow", "fcf")):
+                            fact = evidence[key]
+                            if fact:
+                                st.write(f"**{label}:** ${fact['value']:,.0f} for year ended {fact['end']} (filed {fact['filed']}; accession {fact['accession']})")
+                        if evidence["growth_pct"] is not None:
+                            st.write(f"**Annual revenue growth:** {evidence['growth_pct']:.1f}% (two reported annual periods)")
+                        for flag in evidence["hard_stops"]:
+                            st.warning(flag)
+                        st.link_button("Open SEC company facts", evidence["source"])
+                        st.caption("Limited SEC XBRL screen, not a Savior score. Confirm company identity, accounting context, current valuation, EBITDA, leverage, deal terms, legal and management checks before judging fit or profitability.")
     st.caption("A named company may be public, private, a fund, or unavailable to invest in. Check the primary source, ticker or ownership, valuation, access, and Savior criteria before considering it.")
 if st.button("Search Internet sources"):
     try:
