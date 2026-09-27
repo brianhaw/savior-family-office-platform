@@ -4,6 +4,10 @@ Run with `streamlit run app.py` after installing `requirements.txt`.
 
 ## Samson
 
+The planned discovery, monitoring, forecasting, and alert system is described
+in [Samson's operating model](docs/samson-operating-model.md). The standalone
+app below is a conversational prototype, not the continuous agent.
+
 `samson_app.py` is a separate private Streamlit entry point for Samson. It
 accepts a Savior Excel export for a single session and keeps chat in that
 session. Deploy it with private access and its own `OPENAI_API_KEY` secret.
