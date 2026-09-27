@@ -34,6 +34,13 @@ Each lead shows a Savior evidence gate: an unrated status, unknown hard stops,
 and the financial/deal inputs required for a score. Explicitly named leads can
 open the Savior questionnaire with the name prefilled. A search headline never
 produces a fabricated profitability probability, risk rating, or Savior score.
+For an explicitly named lead, "Check SEC financial evidence" matches an exact
+normalized SEC registrant name and retrieves annual XBRL facts on demand. It
+shows reported revenue and growth and derives free cash flow only when annual
+operating cash and capital purchases share a period. Ambiguous or private names
+stay unmatched. This small primary-source screen does not cover valuation,
+EBITDA, management, legal risk, or a complete Savior evaluation; inspect the
+filing and its accounting context before using any flag.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
