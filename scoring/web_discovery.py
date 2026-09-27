@@ -80,13 +80,20 @@ def search_theme(tier, theme, brave_key="", count=12):
     if not 1 <= count <= 20:
         raise ValueError("Count must be between 1 and 20")
     query = THEMES[tier][theme]
-    response = requests.get(GDELT_URL, params={
-        "query": query, "mode": "artlist", "format": "json",
-        "maxrecords": count, "timespan": "1week", "sort": "datedesc",
-    }, timeout=20)
-    response.raise_for_status()
-    leads = normalize_gdelt(response.json(), tier, theme, query)
+    leads = []
     errors = []
+    try:
+        response = requests.get(GDELT_URL, params={
+            "query": query, "mode": "artlist", "format": "json",
+            "maxrecords": count, "timespan": "1week", "sort": "datedesc",
+        }, timeout=20)
+        response.raise_for_status()
+        leads.extend(normalize_gdelt(response.json(), tier, theme, query))
+    except (requests.RequestException, ValueError) as exc:
+        if getattr(getattr(exc, "response", None), "status_code", None) == 429:
+            errors.append("Public news search is rate-limited (HTTP 429). Try later or configure BRAVE_SEARCH_API_KEY for wider web search.")
+        else:
+            errors.append(f"Public news search unavailable: {exc.__class__.__name__}")
     if brave_key:
         try:
             response = requests.get(BRAVE_URL, params={
