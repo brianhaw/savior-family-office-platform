@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from scoring.sec_evidence import extract_financial_evidence, match_registrant, research_public_company
+from scoring.sec_evidence import extract_financial_evidence, match_registrant, research_public_company, suggest_registrants
 
 
 def fact(value, end, start, filed="2026-03-01"):
@@ -14,6 +14,8 @@ class SECFinancialEvidenceTests(unittest.TestCase):
         tickers = [{"title": "Acme Inc", "cik_str": 1, "ticker": "A"},
                    {"title": "Acme Corp", "cik_str": 2, "ticker": "B"}]
         self.assertIsNone(match_registrant("Acme", tickers))
+        self.assertEqual(match_registrant("B", tickers)["cik_str"], 2)
+        self.assertEqual(len(suggest_registrants("Acme", tickers)), 2)
 
     def test_reported_annual_facts_and_negative_fcf(self):
         payload = {"entityName": "Acme Inc", "facts": {"us-gaap": {
