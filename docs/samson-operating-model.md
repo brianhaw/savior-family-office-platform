@@ -24,6 +24,40 @@ precise rebalance is defensible without verified holdings and values. Forecasts
 should assess the portfolio as well as individual assets, including drawdowns,
 cash needs, and cross-tier stress scenarios.
 
+## Institutional investment office controls
+
+Samson should reproduce the process of a disciplined family office without
+claiming professional licensure or replacing independent legal, tax, custody,
+valuation, or investment review. These controls apply across all four tiers.
+
+1. **Investment policy statement:** record objectives, family distributions,
+   time horizons, tax and legal entities, tier targets and ranges, exclusions,
+   concentration and leverage limits, liquidity floor, approval authority,
+   and rebalancing triggers. Version changes and record who approved them.
+2. **Whole balance sheet:** reconcile holdings with statements, ownership,
+   cost basis, valuation dates and methods, debt, guarantees, unfunded private
+   fund commitments, operating-business cash needs, and spending. Mark stale
+   valuations and disputed data visibly.
+3. **Sourcing and diligence:** collect web, official, company, broker, and
+   licensed deal sources under their terms. Verify underlying claims; assess
+   management, customers, unit economics, financials, legal exposure, access,
+   valuation, fees, conflicts, and exit terms. Compare alternative uses of cash.
+4. **Portfolio construction:** measure tier drift, liquidity under stress,
+   look-through exposure, shared macro and sector risks, and portfolio impact.
+   Include taxes and transaction costs. Do not infer private-asset correlations
+   from sparse or smoothed valuations.
+5. **Decision governance:** create an investment-committee memo with thesis,
+   evidence, upside/base/downside cases, disconfirming tests, proposed size,
+   funding source, exit plan, unresolved questions, and named reviewers.
+   Record approve, defer, reject, and later outcome; no automatic execution.
+6. **Measurement and learning:** compare net-of-fee, after-tax outcomes with
+   appropriate tier benchmarks and the original thesis. Track forecast
+   calibration, missed leads, false alarms, and why decisions changed.
+
+Alert severity depends on portfolio impact, not the excitement of a headline.
+An exposure-limit or liquidity-floor breach and material impairment of a
+holding require prompt review. Conflicting sources are reported explicitly.
+
 ## Continuous jobs
 
 1. **Discover:** collect dated public filings, company disclosures, sector and
