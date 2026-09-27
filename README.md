@@ -11,6 +11,10 @@ app below is a conversational prototype, not the continuous agent.
 `samson_app.py` is a separate private Streamlit entry point for Samson. It
 accepts a Savior Excel export for a single session and keeps chat in that
 session. Deploy it with private access and its own `OPENAI_API_KEY` secret.
+Its first discovery scan reads recent SEC filings on demand. Set
+`SEC_USER_AGENT = "Samson Research contact@example.com"` in private secrets,
+using a real monitored contact email, before using that scan. A filing is only
+a research lead. No ranking, valuation, continuous scan, or forecast is active.
 The existing chat in `app.py` remains available until the separate deployment
 has been tested; then it can be removed from the questionnaire.
 
