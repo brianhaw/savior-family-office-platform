@@ -2,15 +2,26 @@
 
 Run with `streamlit run app.py` after installing `requirements.txt`.
 
-## Docere
+## Samson
 
-Docere is an investment research chatbot in the app. Set `OPENAI_API_KEY` as
+`samson_app.py` is a separate private Streamlit entry point for Samson. It
+accepts a Savior Excel export for a single session and keeps chat in that
+session. Deploy it with private access and its own `OPENAI_API_KEY` secret.
+The existing chat in `app.py` remains available until the separate deployment
+has been tested; then it can be removed from the questionnaire.
+
+Do not invite outside companies to use `app.py` yet. It displays internal
+scores and saves submissions to non-durable local storage. A company-facing
+intake needs its own submission flow, document handling, consent, and a
+private persistent review queue before it can accept real confidential data.
+
+Samson is an investment research chatbot in the app. Set `OPENAI_API_KEY` as
 an environment variable or in Streamlit's secret settings. Standard chat and
 briefing previews use `gpt-6-sol`; selecting Deep analysis uses `gpt-6-astra`.
-You may override these with `DOCERE_MODEL` and `DOCERE_DEEP_MODEL` secrets.
+You may override these with `SAMSON_MODEL` and `SAMSON_DEEP_MODEL` secrets.
 Never put a key in this repo.
 
-Docere reads the evaluations in `investment_history.xlsx`, if present. Its
+Samson reads the evaluations in `investment_history.xlsx`, if present. Its
 conversation is held in the current Streamlit session. The briefing control is
 a preview generated on demand. These records are user-entered evaluations,
 not verified positions, market data, or current legal findings.

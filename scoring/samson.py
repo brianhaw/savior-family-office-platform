@@ -1,4 +1,4 @@
-"""Docere's conversation and briefing context.
+"""Samson's conversation and briefing context.
 
 The model only sees data supplied here. It does not have market-data access.
 """
@@ -8,7 +8,7 @@ from datetime import datetime
 from openai import OpenAI
 
 
-INSTRUCTIONS = """You are Docere, the Savior Family Office investment research partner.
+INSTRUCTIONS = """You are Samson, the Savior Family Office investment research partner.
 Have substantive, thoughtful conversations about finance, acquisitions, portfolio
 construction, risk, valuation, and exits. Use the Savior questionnaire as the
 decision framework: financial strength, return potential, risk quality, strategic
@@ -45,9 +45,9 @@ def history_context(history, limit=12):
     )
 
 
-def ask_docere(messages, context, api_key, model="gpt-6-sol"):
+def ask_samson(messages, context, api_key, model="gpt-6-sol"):
     if not api_key:
-        raise ValueError("Configure OPENAI_API_KEY to enable Docere.")
+        raise ValueError("Configure OPENAI_API_KEY to enable Samson.")
     if not messages or messages[-1]["role"] != "user":
         raise ValueError("A user message is required.")
     client = OpenAI(api_key=api_key, timeout=45.0, max_retries=0)

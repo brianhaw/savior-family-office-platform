@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 
 from scoring.red_flag_research import generate_red_flag_searches
-from scoring.docere import ask_docere, briefing_prompt, history_context
+from scoring.samson import ask_samson, briefing_prompt, history_context
 
 st.set_page_config(
     page_title="Savior Family Office",
@@ -470,63 +470,63 @@ if st.button("Evaluate Investment"):
 
 st.divider()
 
-st.header("Docere")
+st.header("Samson")
 st.caption("Investment research conversation grounded in saved Savior evaluations. No live market feed is connected.")
 
 history_path = "investment_history.xlsx"
-docere_history = None
+samson_history = None
 if os.path.exists(history_path):
     try:
-        docere_history = pd.read_excel(history_path, sheet_name="Investment Analyses")
+        samson_history = pd.read_excel(history_path, sheet_name="Investment Analyses")
     except (ValueError, OSError) as exc:
         st.warning(f"Saved evaluations could not be loaded: {exc}")
 
-context = history_context(docere_history)
+context = history_context(samson_history)
 try:
     configured_key = st.secrets.get("OPENAI_API_KEY", "")
-    configured_model = st.secrets.get("DOCERE_MODEL", "gpt-6-sol")
-    configured_deep_model = st.secrets.get("DOCERE_DEEP_MODEL", "gpt-6-astra")
+    configured_model = st.secrets.get("SAMSON_MODEL", st.secrets.get("DOCERE_MODEL", "gpt-6-sol"))
+    configured_deep_model = st.secrets.get("SAMSON_DEEP_MODEL", st.secrets.get("DOCERE_DEEP_MODEL", "gpt-6-astra"))
 except FileNotFoundError:
     configured_key, configured_model, configured_deep_model = "", "gpt-6-sol", "gpt-6-astra"
 api_key = os.environ.get("OPENAI_API_KEY") or configured_key
-model = os.environ.get("DOCERE_MODEL") or configured_model
-deep_model = os.environ.get("DOCERE_DEEP_MODEL") or configured_deep_model
+model = os.environ.get("SAMSON_MODEL") or os.environ.get("DOCERE_MODEL") or configured_model
+deep_model = os.environ.get("SAMSON_DEEP_MODEL") or os.environ.get("DOCERE_DEEP_MODEL") or configured_deep_model
 
-if "docere_messages" not in st.session_state:
-    st.session_state.docere_messages = []
-if "docere_error" not in st.session_state:
-    st.session_state.docere_error = ""
+if "samson_messages" not in st.session_state:
+    st.session_state.samson_messages = []
+if "samson_error" not in st.session_state:
+    st.session_state.samson_error = ""
 
 st.caption("API key configured" if api_key else "API key missing from Streamlit Secrets")
 
-with st.expander("Evaluation data available to Docere"):
+with st.expander("Evaluation data available to Samson"):
     st.text(context)
 
-for message in st.session_state.docere_messages:
+for message in st.session_state.samson_messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-if st.session_state.docere_error:
-    st.error(st.session_state.docere_error)
+if st.session_state.samson_error:
+    st.error(st.session_state.samson_error)
 
-with st.form("docere_question", clear_on_submit=True):
-    question = st.text_input("Ask Docere about a deal, portfolio risk, or an exit thesis")
+with st.form("samson_question", clear_on_submit=True):
+    question = st.text_input("Ask Samson about a deal, portfolio risk, or an exit thesis")
     analysis_mode = st.radio(
         "Analysis depth",
         ["Standard (Sol, lower cost)", "Deep analysis (Astra, higher cost)"],
         horizontal=True,
     )
-    send_question = st.form_submit_button("Send to Docere")
+    send_question = st.form_submit_button("Send to Samson")
 if send_question and question.strip():
-    st.session_state.docere_error = ""
-    st.session_state.docere_messages.append({"role": "user", "content": question})
+    st.session_state.samson_error = ""
+    st.session_state.samson_messages.append({"role": "user", "content": question})
     try:
-        with st.spinner("Docere is reviewing the available evaluations (up to 45 seconds)..."):
+        with st.spinner("Samson is reviewing the available evaluations (up to 45 seconds)..."):
             selected_model = deep_model if analysis_mode.startswith("Deep") else model
-            answer = ask_docere(st.session_state.docere_messages, context, api_key, selected_model)
-        st.session_state.docere_messages.append({"role": "assistant", "content": answer})
+            answer = ask_samson(st.session_state.samson_messages, context, api_key, selected_model)
+        st.session_state.samson_messages.append({"role": "assistant", "content": answer})
     except Exception as exc:
-        st.session_state.docere_error = f"Docere could not respond: {exc}"
+        st.session_state.samson_error = f"Samson could not respond: {exc}"
     st.rerun()
 
 with st.expander("Preview a daily briefing"):
@@ -534,7 +534,7 @@ with st.expander("Preview a daily briefing"):
     if st.button("Generate briefing preview"):
         try:
             with st.spinner("Preparing briefing..."):
-                briefing = ask_docere(
+                briefing = ask_samson(
                     [{"role": "user", "content": briefing_prompt(period, context)}],
                     context, api_key, model,
                 )
