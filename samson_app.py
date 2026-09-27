@@ -8,7 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from scoring.samson import ask_samson, briefing_prompt, history_context
-from scoring.discovery import latest_filings
+from scoring.discovery import latest_filings, lead_context
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -71,7 +71,10 @@ if uploaded is not None:
     except (ValueError, OSError, KeyError) as exc:
         st.error(f"Could not read the Savior export: {exc}")
 
-context = history_context(history)
+context = history_context(history) + "\n\n" + lead_context(
+    st.session_state.get("discovery_leads", []),
+    st.session_state.get("discovery_form", filing_form),
+)
 with st.expander("Data available to Samson"):
     st.text(context)
 
@@ -110,7 +113,13 @@ if sent and question.strip():
             )
         st.session_state.samson_messages.append({"role": "assistant", "content": answer})
     except Exception as exc:
-        st.session_state.samson_error = f"Samson could not respond: {exc}"
+        if getattr(exc, "code", None) == "credit_balance_exhausted" or "credit_balance_exhausted" in str(exc):
+            st.session_state.samson_error = (
+                "OpenAI API credit is exhausted. Add credit in your OpenAI API billing settings "
+                "before sending another question. Your SEC scan works independently."
+            )
+        else:
+            st.session_state.samson_error = f"Samson could not respond: {exc}"
     st.rerun()
 
 with st.expander("Preview a briefing"):
