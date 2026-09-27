@@ -8,6 +8,7 @@ import pandas as pd
 import streamlit as st
 
 from scoring.samson import ask_samson, briefing_prompt, history_context
+from scoring.discovery import latest_filings
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -29,6 +30,30 @@ deep_model = os.environ.get("SAMSON_DEEP_MODEL") or secret("SAMSON_DEEP_MODEL", 
 if not api_key:
     st.warning("Configure OPENAI_API_KEY in this app's private deployment secrets to enable Samson.")
 
+st.subheader("Discovery · SEC filing leads")
+st.caption("A recent filing is a research lead, not evidence of an attractive price or an investment recommendation.")
+filing_form = st.selectbox(
+    "Filing type",
+    ["D", "8-K", "10-K", "10-Q"],
+    help="D: private offering notice; 8-K: reported event; 10-K/10-Q: periodic reports.",
+)
+sec_user_agent = os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT")
+if not sec_user_agent:
+    st.info("To scan EDGAR, set SEC_USER_AGENT in private secrets to an app name and contact email.")
+if st.button("Scan recent SEC filings", disabled=not sec_user_agent):
+    try:
+        with st.spinner("Reading the official SEC filing feed..."):
+            st.session_state.discovery_leads = latest_filings(filing_form, sec_user_agent)
+            st.session_state.discovery_form = filing_form
+    except Exception as exc:
+        st.error(f"Discovery scan failed: {exc}")
+if st.session_state.get("discovery_leads"):
+    st.caption(f"Latest {st.session_state.discovery_form} leads. Retrieved on demand; no background scan is running.")
+    for lead in st.session_state.discovery_leads:
+        st.markdown(f"**[{lead['title']}]({lead['source_url']})** · filed/updated {lead['published'] or 'date unavailable'}")
+    st.caption("Filing links are official SEC sources. Details, fit, risks, valuation, and investability still require review.")
+
+st.divider()
 st.subheader("Savior evaluations")
 st.caption("Upload an exported Savior investment history for this session. Samson receives a summary of the latest 12 evaluations; this is not a durable portfolio record.")
 uploaded = st.file_uploader("Savior investment history (.xlsx)", type="xlsx")
