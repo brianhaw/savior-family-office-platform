@@ -20,10 +20,13 @@ using a real monitored contact email, before using that scan. A filing is only
 a research lead. No ranking, valuation, continuous scan, or forecast is active.
 Internet discovery searches recent GDELT-indexed news by four-tier themes on
 demand without an additional key. To add a wider web index, set
-`BRAVE_SEARCH_API_KEY` in private secrets. Links and dates are search-result
+`FIRECRAWL_API_KEY = "fc-your-key"` in Streamlit private secrets. Brave remains
+optional with `BRAVE_SEARCH_API_KEY`. Only the public theme name and search
+terms are sent to Firecrawl, never portfolio holdings or Savior submissions.
+Links and dates are search-result
 metadata, not verified claims; open the original article and primary source.
 GDELT may rate-limit shared hosted traffic; if it does, Samson reports the
-source failure and continues with Brave when that optional key is configured.
+source failure and continues with Firecrawl or Brave when a key is configured.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
