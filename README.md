@@ -18,6 +18,12 @@ Its first discovery scan reads recent SEC filings on demand. Set
 `SEC_USER_AGENT = "Samson Research contact@example.com"` in private secrets,
 using a real monitored contact email, before using that scan. A filing is only
 a research lead. No ranking, valuation, continuous scan, or forecast is active.
+Internet discovery searches recent GDELT-indexed news by four-tier themes on
+demand without an additional key. To add a wider web index, set
+`BRAVE_SEARCH_API_KEY` in private secrets. Links and dates are search-result
+metadata, not verified claims; open the original article and primary source.
+Research statuses are session-only and are not part of the Portfolio Office
+JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
 navigation. The page setup is an interim way to work within Community Cloud's
 single private app limit; it is not a separately hosted service.
