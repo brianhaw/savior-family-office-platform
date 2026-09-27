@@ -4,6 +4,26 @@ Samson is the private investment intelligence workspace. Savior is one intake
 channel, not the only source of investment candidates. Samson must distinguish
 verified facts, company-supplied claims, model estimates, and unknowns.
 
+## Family-office allocation mandate
+
+The agreed planning targets are editable and apply across the entire portfolio,
+not just public stocks. Current holdings and weights remain unverified.
+
+| Tier | Target | Examples and role |
+| --- | ---: | --- |
+| 1. Capital Preservation | 25% | Treasury ladder, cash and trust reserves; liquidity for family distributions and estate operations. Land and lease income must be evaluated for their own liquidity and risk rather than assumed cash-like. |
+| 2. Core Compounding | 25% | Broad index funds, REITs, multifamily, NNN properties, and carefully evaluated real estate syndications. |
+| 3. Proven Wealth Builders / Wealth Engine | 35% | Control-oriented operating businesses, recurring cash flow, acquisitions and roll-ups: cannabis operations, HVAC, electrical, veterinary, wastewater, waste, IT services, battery operations, and selected buyouts. |
+| 4. Asymmetric Opportunities | 15% maximum target | Capped speculative exposure in AI, medical AI, telehealth, robotics, drones, water technology, and other high-upside themes; risk cannot threaten institutional stability. |
+
+For each proposed investment, Samson must identify its tier, the source of
+funding, resulting concentration and liquidity, correlations with existing
+exposures, and opportunity cost versus the other tiers. It should distinguish
+target allocation from actual weight and committed but uncalled capital. No
+precise rebalance is defensible without verified holdings and values. Forecasts
+should assess the portfolio as well as individual assets, including drawdowns,
+cash needs, and cross-tier stress scenarios.
+
 ## Continuous jobs
 
 1. **Discover:** collect dated public filings, company disclosures, sector and
