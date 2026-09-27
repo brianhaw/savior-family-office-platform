@@ -9,6 +9,7 @@ import streamlit as st
 
 from scoring.samson import ask_samson, briefing_prompt, history_context
 from scoring.discovery import latest_filings, lead_context
+from scoring.portfolio_office import conversation_context
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -76,6 +77,20 @@ context = history_context(history) + "\n\n" + lead_context(
     st.session_state.get("discovery_leads", []),
     st.session_state.get("discovery_form", filing_form),
 )
+if "office_policy" in st.session_state:
+    st.page_link("pages/2_Portfolio_Office.py", label="Open Portfolio Office")
+    include_office = st.checkbox(
+        "Include my Portfolio Office session data in Samson's AI analysis",
+        value=False,
+        help="If selected, entered holdings, values, policy flags and recent decisions are sent to the configured OpenAI API with your question.",
+    )
+    if include_office:
+        context += "\n\n" + conversation_context(
+            st.session_state.office_holdings, st.session_state.office_policy,
+            st.session_state.office_diligence, st.session_state.office_decisions,
+        )
+else:
+    st.page_link("pages/2_Portfolio_Office.py", label="Set up Portfolio Office")
 with st.expander("Data available to Samson"):
     st.text(context)
 
