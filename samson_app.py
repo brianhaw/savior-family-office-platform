@@ -10,7 +10,7 @@ import streamlit as st
 from scoring.samson import ask_samson, briefing_prompt, history_context
 from scoring.discovery import latest_filings, lead_context
 from scoring.portfolio_office import conversation_context
-from scoring.web_discovery import THEMES, search_theme, web_context
+from scoring.web_discovery import THEMES, search_theme, search_companies, web_context
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -40,6 +40,22 @@ web_theme = st.selectbox("Research theme", list(THEMES[web_tier]))
 brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or secret("BRAVE_SEARCH_API_KEY")
 firecrawl_key = os.environ.get("FIRECRAWL_API_KEY") or secret("FIRECRAWL_API_KEY")
 st.caption("Public news may rate-limit shared traffic. Add FIRECRAWL_API_KEY in private secrets for wider web search; Brave remains optional.")
+if st.button("Find named companies", disabled=not firecrawl_key):
+    try:
+        with st.spinner("Searching company announcements..."):
+            st.session_state.company_leads = search_companies(web_tier, web_theme, firecrawl_key)
+            st.session_state.company_scope = (web_tier, web_theme)
+    except Exception as exc:
+        st.error(f"Company search unavailable: {exc.__class__.__name__}")
+if st.session_state.get("company_leads"):
+    st.caption(f"Company-oriented leads for {st.session_state.company_scope[1]}. Names are extracted only from explicit headline subjects; search snippets and availability remain unverified.")
+    for lead in st.session_state.company_leads:
+        label = lead["candidate_name"] or "Company name needs review"
+        with st.expander(f"{label} · {lead['title']}"):
+            st.write(lead["description"] or "No search summary available.")
+            st.write(f"Source: {lead['source']} · Published: {lead['published']}")
+            st.link_button("Read source and verify company", lead["url"])
+    st.caption("A named company may be public, private, a fund, or unavailable to invest in. Check the primary source, ticker or ownership, valuation, access, and Savior criteria before considering it.")
 if st.button("Search Internet sources"):
     try:
         with st.spinner("Finding recent Internet coverage..."):

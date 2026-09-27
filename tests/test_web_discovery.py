@@ -2,7 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from scoring.web_discovery import THEMES, search_theme, web_context
+from scoring.web_discovery import THEMES, company_name_from_title, search_companies, search_theme, web_context
 
 
 class Response:
@@ -90,6 +90,22 @@ class WebDiscoveryTests(unittest.TestCase):
         self.assertIn("rate-limited", errors[0])
         self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "Bearer fc-test")
         self.assertEqual(post.call_args.kwargs["json"]["sources"], ["web"])
+
+    def test_company_search_only_names_explicit_headline_subject(self):
+        tier = next(iter(THEMES))
+        theme = next(iter(THEMES[tier]))
+        post = Mock(return_value=Response({"success": True, "data": {"web": [
+            {"title": "Acme Energy Secures New Contract", "url": "https://example.com/acme",
+             "description": "Contract described in snippet"},
+            {"title": "Market outlook 2026", "url": "https://example.com/outlook"},
+        ], "news": []}}))
+        fake_requests = SimpleNamespace(post=post)
+        with patch.dict("sys.modules", {"requests": fake_requests}):
+            leads = search_companies(tier, theme, "fc-test")
+        self.assertEqual(leads[0]["candidate_name"], "Acme Energy")
+        self.assertEqual(leads[1]["candidate_name"], "")
+        self.assertEqual(post.call_args.kwargs["json"]["sources"], ["web", "news"])
+        self.assertEqual(company_name_from_title("Top companies announce deals"), "")
 
 
 if __name__ == "__main__":

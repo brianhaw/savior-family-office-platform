@@ -27,6 +27,9 @@ Links and dates are search-result
 metadata, not verified claims; open the original article and primary source.
 GDELT may rate-limit shared hosted traffic; if it does, Samson reports the
 source failure and continues with Firecrawl or Brave when a key is configured.
+With Firecrawl configured, "Find named companies" searches company-oriented
+announcements and labels a company only when the headline explicitly names its
+subject. These are unverified research leads, not available deals or buy ideas.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
