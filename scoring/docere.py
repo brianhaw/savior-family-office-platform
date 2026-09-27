@@ -50,7 +50,7 @@ def ask_docere(messages, context, api_key, model="gpt-6-astra"):
         raise ValueError("Configure OPENAI_API_KEY to enable Docere.")
     if not messages or messages[-1]["role"] != "user":
         raise ValueError("A user message is required.")
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=api_key, timeout=45.0, max_retries=0)
     response = client.responses.create(
         model=model,
         instructions=INSTRUCTIONS,

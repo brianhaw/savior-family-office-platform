@@ -492,6 +492,10 @@ model = os.environ.get("DOCERE_MODEL") or configured_model
 
 if "docere_messages" not in st.session_state:
     st.session_state.docere_messages = []
+if "docere_error" not in st.session_state:
+    st.session_state.docere_error = ""
+
+st.caption("API key configured" if api_key else "API key missing from Streamlit Secrets")
 
 with st.expander("Evaluation data available to Docere"):
     st.text(context)
@@ -500,20 +504,22 @@ for message in st.session_state.docere_messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-with st.container():
-    question = st.chat_input("Ask Docere about a deal, portfolio risk, or an exit thesis")
-if question:
+if st.session_state.docere_error:
+    st.error(st.session_state.docere_error)
+
+with st.form("docere_question", clear_on_submit=True):
+    question = st.text_input("Ask Docere about a deal, portfolio risk, or an exit thesis")
+    send_question = st.form_submit_button("Send to Docere")
+if send_question and question.strip():
+    st.session_state.docere_error = ""
     st.session_state.docere_messages.append({"role": "user", "content": question})
-    with st.chat_message("user"):
-        st.markdown(question)
     try:
-        with st.spinner("Docere is reviewing the available evaluations..."):
+        with st.spinner("Docere is reviewing the available evaluations (up to 45 seconds)..."):
             answer = ask_docere(st.session_state.docere_messages, context, api_key, model)
         st.session_state.docere_messages.append({"role": "assistant", "content": answer})
-        with st.chat_message("assistant"):
-            st.markdown(answer)
     except Exception as exc:
-        st.error(f"Docere could not respond: {exc}")
+        st.session_state.docere_error = f"Docere could not respond: {exc}"
+    st.rerun()
 
 with st.expander("Preview a daily briefing"):
     period = st.selectbox("Briefing", ["Morning", "Midday", "Evening"])
