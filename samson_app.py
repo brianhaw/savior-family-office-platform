@@ -38,7 +38,7 @@ st.caption("Recent news and optional wider-web matches are leads to inspect, not
 web_tier = st.selectbox("Portfolio tier to explore", list(THEMES))
 web_theme = st.selectbox("Research theme", list(THEMES[web_tier]))
 brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or secret("BRAVE_SEARCH_API_KEY")
-st.caption("News index available without a key. Wider web search requires an optional BRAVE_SEARCH_API_KEY in private secrets.")
+st.caption("Public news search needs no key but may rate-limit shared traffic. Add BRAVE_SEARCH_API_KEY in private secrets for a separate wider web source.")
 if st.button("Search Internet sources"):
     try:
         with st.spinner("Finding recent Internet coverage..."):
@@ -51,6 +51,8 @@ if st.button("Search Internet sources"):
         st.session_state.web_scan_message = f"Found {len(found)} distinct recent matches."
         for error in search_errors:
             st.warning(error)
+        if not found and search_errors:
+            st.session_state.web_scan_message = "No results were available from the configured sources on this attempt."
     except Exception as exc:
         st.error(f"Internet discovery failed: {exc}")
 if st.session_state.get("web_scan_message"):
