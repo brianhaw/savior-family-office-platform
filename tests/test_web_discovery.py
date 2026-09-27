@@ -73,7 +73,23 @@ class WebDiscoveryTests(unittest.TestCase):
         with patch.dict("sys.modules", {"requests": fake_requests}):
             leads, errors = search_theme(tier, theme)
         self.assertEqual(leads, [])
-        self.assertIn("BRAVE_SEARCH_API_KEY", errors[0])
+        self.assertIn("FIRECRAWL_API_KEY", errors[0])
+
+    def test_firecrawl_key_finds_web_results_after_news_rate_limit(self):
+        tier = next(iter(THEMES))
+        theme = next(iter(THEMES[tier]))
+        post = Mock(return_value=Response({"success": True, "data": {"web": [
+            {"title": "Public lead", "url": "https://example.com/lead"}
+        ]}}))
+        fake_requests = SimpleNamespace(get=Mock(return_value=LimitedResponse({})),
+                                        post=post, RequestException=Exception)
+        with patch.dict("sys.modules", {"requests": fake_requests}):
+            leads, errors = search_theme(tier, theme, firecrawl_key="fc-test")
+        self.assertEqual(len(leads), 1)
+        self.assertEqual(leads[0]["provider"], "Firecrawl web search")
+        self.assertIn("rate-limited", errors[0])
+        self.assertEqual(post.call_args.kwargs["headers"]["Authorization"], "Bearer fc-test")
+        self.assertEqual(post.call_args.kwargs["json"]["sources"], ["web"])
 
 
 if __name__ == "__main__":
