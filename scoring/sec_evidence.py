@@ -26,8 +26,18 @@ def match_registrant(name, tickers):
     if not target:
         return None
     rows = tickers.values() if isinstance(tickers, dict) else tickers
-    matches = [row for row in rows if normalized_name(row.get("title")) == target]
+    matches = [row for row in rows if normalized_name(row.get("title")) == target
+               or (row.get("ticker") or "").lower() == name.strip().lower()]
     return matches[0] if len(matches) == 1 else None
+
+
+def suggest_registrants(name, tickers, limit=8):
+    """Display possible SEC legal-name matches for a human to choose."""
+    target = normalized_name(name)
+    if len(target) < 4:
+        return []
+    rows = tickers.values() if isinstance(tickers, dict) else tickers
+    return [row for row in rows if target in normalized_name(row.get("title"))][:limit]
 
 
 def annual_facts(payload, tag, as_of=None):
@@ -94,3 +104,15 @@ def research_public_company(name, user_agent, get=None):
     response = get(FACTS_URL.format(cik=cik), headers=headers, timeout=20)
     response.raise_for_status()
     return extract_financial_evidence(response.json(), cik, registrant["ticker"])
+
+
+def sec_name_suggestions(name, user_agent, get=None):
+    if not user_agent:
+        raise ValueError("SEC_USER_AGENT is required")
+    if get is None:
+        import requests
+        get = requests.get
+    response = get(TICKERS_URL, headers={"User-Agent": user_agent,
+                                        "Accept": "application/json"}, timeout=20)
+    response.raise_for_status()
+    return suggest_registrants(name, response.json())
