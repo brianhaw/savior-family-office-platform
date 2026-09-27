@@ -14,6 +14,7 @@ from scoring.discovery import latest_filings, lead_context
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
 st.title("Samson")
 st.caption("Private investment research workspace · no live feed or continuous monitoring is connected yet")
+st.caption("Portfolio lens: Preservation 25% · Core compounding 25% · Wealth engine 35% · Capped asymmetric 15% (planning targets; actual holdings unverified)")
 
 
 def secret(name, default=""):
