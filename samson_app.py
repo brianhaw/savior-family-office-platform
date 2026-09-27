@@ -10,6 +10,7 @@ import streamlit as st
 from scoring.samson import ask_samson, briefing_prompt, history_context
 from scoring.discovery import latest_filings, lead_context
 from scoring.portfolio_office import conversation_context
+from scoring.web_discovery import THEMES, search_theme, web_context
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -32,6 +33,42 @@ deep_model = os.environ.get("SAMSON_DEEP_MODEL") or secret("SAMSON_DEEP_MODEL", 
 if not api_key:
     st.warning("Configure OPENAI_API_KEY in this app's private deployment secrets to enable Samson.")
 
+st.subheader("Internet discovery · four-tier themes")
+st.caption("Recent news and optional wider-web matches are leads to inspect, not verified investment opportunities. Searches run only when requested.")
+web_tier = st.selectbox("Portfolio tier to explore", list(THEMES))
+web_theme = st.selectbox("Research theme", list(THEMES[web_tier]))
+brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or secret("BRAVE_SEARCH_API_KEY")
+st.caption("News index available without a key. Wider web search requires an optional BRAVE_SEARCH_API_KEY in private secrets.")
+if st.button("Search Internet sources"):
+    try:
+        with st.spinner("Finding recent Internet coverage..."):
+            found, search_errors = search_theme(web_tier, web_theme, brave_key)
+        existing = {lead["url"]: lead for lead in st.session_state.get("web_leads", [])}
+        for lead in found:
+            existing[lead["url"]] = lead
+        st.session_state.web_leads = list(existing.values())[-100:]
+        st.session_state.web_last_scan = f"{web_tier} / {web_theme}"
+        st.session_state.web_scan_message = f"Found {len(found)} distinct recent matches."
+        for error in search_errors:
+            st.warning(error)
+    except Exception as exc:
+        st.error(f"Internet discovery failed: {exc}")
+if st.session_state.get("web_scan_message"):
+    st.success(st.session_state.web_scan_message)
+if st.session_state.get("web_leads"):
+    st.caption("Research queue for this browser session. Check the underlying article and original company or official source before treating any claim as fact.")
+    st.session_state.setdefault("web_status", {})
+    for i, lead in enumerate(reversed(st.session_state.web_leads)):
+        with st.expander(f"{lead['title']} · {lead['theme']}"):
+            st.write(f"{lead['provider']} · {lead['source']} · {lead['published']} · {lead['tier']}")
+            st.link_button("Open source", lead["url"])
+            choices = ["New", "Investigate", "Watch", "Dismiss"]
+            current = st.session_state.web_status.get(lead["url"], "New")
+            selected = st.selectbox("Research status", choices, index=choices.index(current), key=f"web_status_widget_{i}_{lead['url']}")
+            st.session_state.web_status[lead["url"]] = selected
+    st.caption("Statuses are session-only. Search results and statuses are not saved to the Portfolio Office export yet.")
+
+st.divider()
 st.subheader("Discovery · SEC filing leads")
 st.caption("A recent filing is a research lead, not evidence of an attractive price or an investment recommendation.")
 filing_form = st.selectbox(
@@ -77,6 +114,10 @@ context = history_context(history) + "\n\n" + lead_context(
     st.session_state.get("discovery_leads", []),
     st.session_state.get("discovery_form", filing_form),
 )
+context += "\n\n" + web_context([
+    lead for lead in st.session_state.get("web_leads", [])
+    if st.session_state.get("web_status", {}).get(lead["url"]) != "Dismiss"
+])
 if "office_policy" in st.session_state:
     st.page_link("pages/2_Portfolio_Office.py", label="Open Portfolio Office")
     include_office = st.checkbox(
