@@ -4,6 +4,7 @@ A filing is a lead for diligence, not a recommendation or a forecast.
 """
 
 from datetime import datetime
+import re
 from urllib.parse import urlencode
 from xml.etree import ElementTree
 
@@ -30,7 +31,26 @@ def latest_filings(form, user_agent, count=40):
         timeout=15,
     )
     response.raise_for_status()
-    return parse_atom(response.content)
+    return [lead for lead in parse_atom(response.content)
+            if filing_matches(lead["title"], form)]
+
+
+def filing_matches(title, form):
+    """Match the form token exactly, including its amended /A variant."""
+    if form not in ALLOWED_FORMS:
+        return False
+    return bool(re.match(rf"^{re.escape(form)}(?:/A)?\s+-\s+", title))
+
+
+def lead_context(leads, form, limit=40):
+    """Bounded source list for conversation; titles alone cannot establish merit."""
+    if not leads:
+        return "No SEC filing leads have been scanned in this session."
+    lines = [f"SEC {form} filing leads (on-demand scan; metadata only):"]
+    for lead in leads[:limit]:
+        lines.append(f"- {lead['title']} | updated {lead['published']} | {lead['source_url']}")
+    lines.append("These are filing titles and links, not reviewed financials or investment access. Evaluate only as preliminary leads.")
+    return "\n".join(lines)
 
 
 def parse_atom(content):
