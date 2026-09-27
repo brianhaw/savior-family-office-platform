@@ -167,7 +167,16 @@ with st.expander("Definitions / How to Use This Model"):
 
 st.header("Red Flag Research Engine")
 
-company_name = st.text_input("Company Name", value=st.query_params.get("company", ""))
+prefill_context = st.session_state.get("savior_prefill_context")
+if prefill_context and st.session_state.pop("savior_prefill_pending", False):
+    for key, value in prefill_context["values"].items():
+        st.session_state[key] = value
+if prefill_context:
+    st.info("Imported from a Samson research lead. Only sourced fields were prefilled; review the SEC record and complete every missing field before evaluating.")
+    st.write("Prefilled evidence: " + (", ".join(prefill_context["verified"]) or "Company name only"))
+    for source_url in prefill_context["sources"]:
+        st.link_button("Open imported source", source_url)
+company_name = st.text_input("Company Name", value=st.query_params.get("company", ""), key="savior_company_name")
 website = st.text_input("Company Website")
 ceo_name = st.text_input("CEO / Founder Name")
 state = st.text_input("Company State")
@@ -196,10 +205,10 @@ st.header("Investment Questionnaire")
 col1, col2 = st.columns(2)
 
 with col1:
-    revenue = st.number_input("Annual Revenue", min_value=0.0, step=100000.0)
-    revenue_growth = st.number_input("Revenue Growth %", min_value=-100.0, max_value=500.0, step=1.0)
+    revenue = st.number_input("Annual Revenue", min_value=0.0, step=100000.0, key="savior_revenue")
+    revenue_growth = st.number_input("Revenue Growth %", min_value=-100.0, max_value=500.0, step=1.0, key="savior_revenue_growth")
     ebitda = st.number_input("EBITDA", min_value=-100000000.0, step=100000.0)
-    free_cash_flow = st.number_input("Free Cash Flow", min_value=-100000000.0, step=100000.0)
+    free_cash_flow = st.number_input("Free Cash Flow", min_value=-100000000.0, step=100000.0, key="savior_free_cash_flow")
     debt = st.number_input("Debt", min_value=0.0, step=100000.0)
     recurring_revenue = st.number_input("Recurring Revenue %", min_value=0.0, max_value=100.0, step=1.0)
 
@@ -229,7 +238,13 @@ with q3:
     regulatory_risk = st.slider("Regulatory Risk Score", 0, 10, 5)
     key_person_risk = st.slider("Key Person Risk Score", 0, 10, 5)
 
-if st.button("Evaluate Investment"):
+reviewed_prefill = True
+if prefill_context:
+    reviewed_prefill = st.checkbox(
+        "I checked the imported figures and filled or verified the remaining financial, deal, management, and risk answers.",
+        key="savior_prefill_reviewed",
+    )
+if st.button("Evaluate Investment", disabled=not reviewed_prefill):
     financial_score, debt_to_ebitda = score_financial_strength(
         revenue,
         revenue_growth,
