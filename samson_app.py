@@ -38,11 +38,12 @@ st.caption("Recent news and optional wider-web matches are leads to inspect, not
 web_tier = st.selectbox("Portfolio tier to explore", list(THEMES))
 web_theme = st.selectbox("Research theme", list(THEMES[web_tier]))
 brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or secret("BRAVE_SEARCH_API_KEY")
-st.caption("Public news search needs no key but may rate-limit shared traffic. Add BRAVE_SEARCH_API_KEY in private secrets for a separate wider web source.")
+firecrawl_key = os.environ.get("FIRECRAWL_API_KEY") or secret("FIRECRAWL_API_KEY")
+st.caption("Public news may rate-limit shared traffic. Add FIRECRAWL_API_KEY in private secrets for wider web search; Brave remains optional.")
 if st.button("Search Internet sources"):
     try:
         with st.spinner("Finding recent Internet coverage..."):
-            found, search_errors = search_theme(web_tier, web_theme, brave_key)
+            found, search_errors = search_theme(web_tier, web_theme, brave_key, firecrawl_key=firecrawl_key)
         existing = {lead["url"]: lead for lead in st.session_state.get("web_leads", [])}
         for lead in found:
             existing[lead["url"]] = lead
