@@ -22,6 +22,16 @@ The chat has been removed from `app.py`; select Samson from the app's page
 navigation. The page setup is an interim way to work within Community Cloud's
 single private app limit; it is not a separately hosted service.
 
+`pages/2_Portfolio_Office.py` is a session-based prototype of the investment
+policy, whole-portfolio inventory, diligence checklist, stress illustrations,
+and decision log. Its export/import JSON allows manual continuity, but browser
+refresh or session expiry clears the server-side entries. Keep the JSON private;
+it can contain sensitive financial information and must not be committed.
+Samson only sends those session entries to the OpenAI API if the user selects
+the explicit Portfolio Office checkbox on the Samson page. The prototype does
+not reconcile statements, verify private valuations, account for tax or fees
+in stress arithmetic, execute decisions, or provide background monitoring.
+
 Do not invite outside companies to use `app.py` yet. It displays internal
 scores and saves submissions to non-durable local storage. A company-facing
 intake needs its own submission flow, document handling, consent, and a
