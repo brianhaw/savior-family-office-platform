@@ -7,3 +7,4 @@ sqlalchemy
 requests
 beautifulsoup4
 yfinance
+openai

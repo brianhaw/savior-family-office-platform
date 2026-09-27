@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 
 from scoring.red_flag_research import generate_red_flag_searches
+from scoring.docere import ask_docere, briefing_prompt, history_context
 
 st.set_page_config(
     page_title="Savior Family Office",
@@ -189,6 +190,65 @@ if st.button("Run Red Flag Research"):
             f"**{item['Category']}** - "
             f"[{item['Search']}]({item['URL']})"
         )
+
+st.divider()
+
+st.header("Docere")
+st.caption("Investment research conversation grounded in saved Savior evaluations. No live market feed is connected.")
+
+history_path = "investment_history.xlsx"
+docere_history = None
+if os.path.exists(history_path):
+    try:
+        docere_history = pd.read_excel(history_path, sheet_name="Investment Analyses")
+    except (ValueError, OSError) as exc:
+        st.warning(f"Saved evaluations could not be loaded: {exc}")
+
+context = history_context(docere_history)
+try:
+    configured_key = st.secrets.get("OPENAI_API_KEY", "")
+    configured_model = st.secrets.get("DOCERE_MODEL", "gpt-6-astra")
+except FileNotFoundError:
+    configured_key, configured_model = "", "gpt-6-astra"
+api_key = os.environ.get("OPENAI_API_KEY") or configured_key
+model = os.environ.get("DOCERE_MODEL") or configured_model
+
+if "docere_messages" not in st.session_state:
+    st.session_state.docere_messages = []
+
+with st.expander("Evaluation data available to Docere"):
+    st.text(context)
+
+for message in st.session_state.docere_messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+question = st.chat_input("Ask Docere about a deal, portfolio risk, or an exit thesis")
+if question:
+    st.session_state.docere_messages.append({"role": "user", "content": question})
+    with st.chat_message("user"):
+        st.markdown(question)
+    try:
+        with st.spinner("Docere is reviewing the available evaluations..."):
+            answer = ask_docere(st.session_state.docere_messages, context, api_key, model)
+        st.session_state.docere_messages.append({"role": "assistant", "content": answer})
+        with st.chat_message("assistant"):
+            st.markdown(answer)
+    except Exception as exc:
+        st.error(f"Docere could not respond: {exc}")
+
+with st.expander("Preview a daily briefing"):
+    period = st.selectbox("Briefing", ["Morning", "Midday", "Evening"])
+    if st.button("Generate briefing preview"):
+        try:
+            with st.spinner("Preparing briefing..."):
+                briefing = ask_docere(
+                    [{"role": "user", "content": briefing_prompt(period, context)}],
+                    context, api_key, model,
+                )
+            st.markdown(briefing)
+        except Exception as exc:
+            st.error(f"Briefing could not be generated: {exc}")
 
 st.divider()
 st.header("Investment Questionnaire")
