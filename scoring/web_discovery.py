@@ -5,6 +5,7 @@ from urllib.parse import urlparse, urlunparse
 
 GDELT_URL = "https://api.gdeltproject.org/api/v2/doc/doc"
 BRAVE_URL = "https://api.search.brave.com/res/v1/web/search"
+FIRECRAWL_URL = "https://api.firecrawl.dev/v2/search"
 
 THEMES = {
     "1 · Capital Preservation": {
@@ -71,7 +72,24 @@ def normalize_brave(payload, tier, theme, query):
     return results
 
 
-def search_theme(tier, theme, brave_key="", count=12):
+def normalize_firecrawl(payload, tier, theme, query):
+    observed = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    results = []
+    for item in payload.get("data", {}).get("web", []):
+        url = canonical_url(item.get("url"))
+        if not url:
+            continue
+        results.append({
+            "title": item.get("title") or "Untitled page", "url": url,
+            "published": "Date not supplied", "source": urlparse(url).hostname,
+            "tier": tier, "theme": theme, "query": query,
+            "discovered_at": observed, "provider": "Firecrawl web search",
+            "verification": "Search result only; underlying page not verified",
+        })
+    return results
+
+
+def search_theme(tier, theme, brave_key="", count=12, firecrawl_key=""):
     """Search recent global news and optionally the wider web, on demand."""
     import requests
 
@@ -91,7 +109,7 @@ def search_theme(tier, theme, brave_key="", count=12):
         leads.extend(normalize_gdelt(response.json(), tier, theme, query))
     except (requests.RequestException, ValueError) as exc:
         if getattr(getattr(exc, "response", None), "status_code", None) == 429:
-            errors.append("Public news search is rate-limited (HTTP 429). Try later or configure BRAVE_SEARCH_API_KEY for wider web search.")
+            errors.append("Public news search is rate-limited (HTTP 429). Try later or configure FIRECRAWL_API_KEY for wider web search.")
         else:
             errors.append(f"Public news search unavailable: {exc.__class__.__name__}")
     if brave_key:
@@ -103,6 +121,20 @@ def search_theme(tier, theme, brave_key="", count=12):
             leads.extend(normalize_brave(response.json(), tier, theme, query))
         except (requests.RequestException, ValueError) as exc:
             errors.append(f"Brave web search unavailable: {exc.__class__.__name__}")
+    if firecrawl_key:
+        try:
+            response = requests.post(FIRECRAWL_URL, json={
+                "query": f"{theme} investment market demand opportunity risk",
+                "limit": min(count, 10), "sources": ["web"],
+            }, headers={"Authorization": f"Bearer {firecrawl_key}",
+                        "Content-Type": "application/json"}, timeout=20)
+            response.raise_for_status()
+            payload = response.json()
+            if payload.get("success") is False:
+                raise ValueError("Search provider reported failure")
+            leads.extend(normalize_firecrawl(payload, tier, theme, query))
+        except (requests.RequestException, ValueError, TypeError) as exc:
+            errors.append(f"Firecrawl web search unavailable: {exc.__class__.__name__}")
     seen = set()
     unique = []
     for lead in leads:
