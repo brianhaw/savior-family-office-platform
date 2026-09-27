@@ -484,11 +484,13 @@ if os.path.exists(history_path):
 context = history_context(docere_history)
 try:
     configured_key = st.secrets.get("OPENAI_API_KEY", "")
-    configured_model = st.secrets.get("DOCERE_MODEL", "gpt-6-astra")
+    configured_model = st.secrets.get("DOCERE_MODEL", "gpt-6-sol")
+    configured_deep_model = st.secrets.get("DOCERE_DEEP_MODEL", "gpt-6-astra")
 except FileNotFoundError:
-    configured_key, configured_model = "", "gpt-6-astra"
+    configured_key, configured_model, configured_deep_model = "", "gpt-6-sol", "gpt-6-astra"
 api_key = os.environ.get("OPENAI_API_KEY") or configured_key
 model = os.environ.get("DOCERE_MODEL") or configured_model
+deep_model = os.environ.get("DOCERE_DEEP_MODEL") or configured_deep_model
 
 if "docere_messages" not in st.session_state:
     st.session_state.docere_messages = []
@@ -509,13 +511,19 @@ if st.session_state.docere_error:
 
 with st.form("docere_question", clear_on_submit=True):
     question = st.text_input("Ask Docere about a deal, portfolio risk, or an exit thesis")
+    analysis_mode = st.radio(
+        "Analysis depth",
+        ["Standard (Sol, lower cost)", "Deep analysis (Astra, higher cost)"],
+        horizontal=True,
+    )
     send_question = st.form_submit_button("Send to Docere")
 if send_question and question.strip():
     st.session_state.docere_error = ""
     st.session_state.docere_messages.append({"role": "user", "content": question})
     try:
         with st.spinner("Docere is reviewing the available evaluations (up to 45 seconds)..."):
-            answer = ask_docere(st.session_state.docere_messages, context, api_key, model)
+            selected_model = deep_model if analysis_mode.startswith("Deep") else model
+            answer = ask_docere(st.session_state.docere_messages, context, api_key, selected_model)
         st.session_state.docere_messages.append({"role": "assistant", "content": answer})
     except Exception as exc:
         st.session_state.docere_error = f"Docere could not respond: {exc}"
