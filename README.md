@@ -8,15 +8,19 @@ The planned discovery, monitoring, forecasting, and alert system is described
 in [Samson's operating model](docs/samson-operating-model.md). The standalone
 app below is a conversational prototype, not the continuous agent.
 
-`samson_app.py` is a separate private Streamlit entry point for Samson. It
-accepts a Savior Excel export for a single session and keeps chat in that
-session. Deploy it with private access and its own `OPENAI_API_KEY` secret.
+`samson_app.py` is a separate Streamlit entry point for Samson. For now,
+`pages/1_Samson.py` also exposes it as its own page inside the existing private
+Savior deployment; the questionnaire is the home page. Samson accepts a Savior
+Excel export for a single session and keeps chat in that session. The existing
+private deployment already has `OPENAI_API_KEY`; a future standalone deployment
+will need its own key setting and access controls.
 Its first discovery scan reads recent SEC filings on demand. Set
 `SEC_USER_AGENT = "Samson Research contact@example.com"` in private secrets,
 using a real monitored contact email, before using that scan. A filing is only
 a research lead. No ranking, valuation, continuous scan, or forecast is active.
-The existing chat in `app.py` remains available until the separate deployment
-has been tested; then it can be removed from the questionnaire.
+The chat has been removed from `app.py`; select Samson from the app's page
+navigation. The page setup is an interim way to work within Community Cloud's
+single private app limit; it is not a separately hosted service.
 
 Do not invite outside companies to use `app.py` yet. It displays internal
 scores and saves submissions to non-durable local storage. A company-facing
