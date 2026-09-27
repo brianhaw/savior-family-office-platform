@@ -5,8 +5,10 @@ Run with `streamlit run app.py` after installing `requirements.txt`.
 ## Docere
 
 Docere is an investment research chatbot in the app. Set `OPENAI_API_KEY` as
-an environment variable or in Streamlit's secret settings. You may optionally
-set `DOCERE_MODEL` (the default is `gpt-6-astra`). Never put a key in this repo.
+an environment variable or in Streamlit's secret settings. Standard chat and
+briefing previews use `gpt-6-sol`; selecting Deep analysis uses `gpt-6-astra`.
+You may override these with `DOCERE_MODEL` and `DOCERE_DEEP_MODEL` secrets.
+Never put a key in this repo.
 
 Docere reads the evaluations in `investment_history.xlsx`, if present. Its
 conversation is held in the current Streamlit session. The briefing control is
