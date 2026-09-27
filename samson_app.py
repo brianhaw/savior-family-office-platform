@@ -13,7 +13,7 @@ from scoring.discovery import latest_filings, lead_context
 from scoring.portfolio_office import conversation_context
 from scoring.web_discovery import THEMES, search_theme, search_companies, web_context
 from scoring.savior_screen import web_lead_screen
-from scoring.sec_evidence import research_public_company
+from scoring.sec_evidence import research_public_company, sec_name_suggestions
 
 
 st.set_page_config(page_title="Samson | Savior Family Office", page_icon="📖", layout="wide")
@@ -69,19 +69,30 @@ if st.session_state.get("company_leads"):
             if lead["candidate_name"]:
                 st.link_button("Evaluate in Savior questionnaire",
                                f"/?company={quote(lead['candidate_name'])}")
+                lookup = st.text_input("SEC company legal name or ticker",
+                                       value=lead["candidate_name"], key=f"sec_lookup_{lead['url']}",
+                                       help="If the headline uses a brand name, enter its public ticker or SEC legal name.")
                 if st.button("Check SEC financial evidence", key=f"sec_company_{lead['url']}",
                              disabled=not (os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))):
                     try:
                         with st.spinner("Matching SEC registrant and annual financial facts..."):
                             evidence = research_public_company(
-                                lead["candidate_name"], os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))
+                                lookup, os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))
                         st.session_state.setdefault("company_evidence", {})[lead["url"]] = evidence
+                        st.session_state.setdefault("company_lookup", {})[lead["url"]] = lookup
+                        if evidence is None:
+                            st.session_state.setdefault("company_suggestions", {})[lead["url"]] = sec_name_suggestions(
+                                lookup, os.environ.get("SEC_USER_AGENT") or secret("SEC_USER_AGENT"))
                     except Exception as exc:
                         st.error(f"SEC evidence unavailable: {exc.__class__.__name__}")
                 if lead["url"] in st.session_state.get("company_evidence", {}):
                     evidence = st.session_state.company_evidence[lead["url"]]
                     if evidence is None:
-                        st.info("No unique SEC ticker match. This may be a private company, a fund, a different legal name, or an ambiguous name. No financial rating was calculated.")
+                        st.info("No unique SEC match. Check the company's legal name or public ticker above and try again. A private company may have no SEC ticker entry.")
+                        suggestions = st.session_state.get("company_suggestions", {}).get(lead["url"], [])
+                        if suggestions:
+                            st.write("Possible SEC names (verify identity before using a ticker): " +
+                                     "; ".join(f"{row['title']} ({row['ticker']})" for row in suggestions))
                     else:
                         st.write(f"**SEC match:** {evidence['registrant']} ({evidence['ticker']}; CIK {evidence['cik']})")
                         for label, key in (("Annual revenue", "revenue"), ("Free cash flow", "fcf")):

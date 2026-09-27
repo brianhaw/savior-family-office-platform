@@ -41,6 +41,9 @@ operating cash and capital purchases share a period. Ambiguous or private names
 stay unmatched. This small primary-source screen does not cover valuation,
 EBITDA, management, legal risk, or a complete Savior evaluation; inspect the
 filing and its accounting context before using any flag.
+If a headline uses a brand or abbreviated name, edit the SEC lookup field to
+the public ticker or legal registrant name and retry. Ambiguous matches are
+never selected automatically; possible legal names are shown for review.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
