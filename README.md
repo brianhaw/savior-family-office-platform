@@ -44,6 +44,11 @@ filing and its accounting context before using any flag.
 If a headline uses a brand or abbreviated name, edit the SEC lookup field to
 the public ticker or legal registrant name and retry. Ambiguous matches are
 never selected automatically; possible legal names are shown for review.
+The Evaluate in Savior button moves within the same Streamlit session, carries
+the SEC-matched company name, reported revenue, annual growth and derived free
+cash flow when present, and lists the source URLs. Missing answers stay at the
+questionnaire defaults and require explicit review before evaluation; an
+article URL is not treated as the company website.
 Research statuses are session-only and are not part of the Portfolio Office
 JSON export yet. Never commit API keys or confidential research notes.
 The chat has been removed from `app.py`; select Samson from the app's page
