@@ -8,3 +8,4 @@ requests
 beautifulsoup4
 yfinance
 openai
+mcp>=1.30,<2
