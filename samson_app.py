@@ -3,6 +3,7 @@
 import os
 from hashlib import sha256
 from io import BytesIO
+from uuid import uuid4
 
 import pandas as pd
 import streamlit as st
@@ -43,6 +44,10 @@ web_theme = st.selectbox("Research theme", list(THEMES[web_tier]))
 brave_key = os.environ.get("BRAVE_SEARCH_API_KEY") or secret("BRAVE_SEARCH_API_KEY")
 firecrawl_key = os.environ.get("FIRECRAWL_API_KEY") or secret("FIRECRAWL_API_KEY")
 st.caption("Public news may rate-limit shared traffic. Add FIRECRAWL_API_KEY in private secrets for wider web search; Brave remains optional.")
+include_parallel = st.checkbox(
+    "Include Parallel web search (no API key)", value=False, key="include_parallel",
+    help="When you search, Parallel receives only the selected public theme and search terms, never your holdings, uploads or conversation. GDELT and configured sources remain enabled.",
+)
 if st.button("Find named companies", disabled=not firecrawl_key):
     try:
         with st.spinner("Searching company announcements..."):
@@ -113,13 +118,19 @@ if st.session_state.get("company_leads"):
 if st.button("Search Internet sources"):
     try:
         with st.spinner("Finding recent Internet coverage..."):
-            found, search_errors = search_theme(web_tier, web_theme, brave_key, firecrawl_key=firecrawl_key)
+            if include_parallel and "parallel_search_session" not in st.session_state:
+                st.session_state.parallel_search_session = uuid4().hex
+            found, search_errors = search_theme(
+                web_tier, web_theme, brave_key, firecrawl_key=firecrawl_key,
+                parallel=include_parallel,
+                parallel_session_id=st.session_state.get("parallel_search_session"),
+            )
         existing = {lead["url"]: lead for lead in st.session_state.get("web_leads", [])}
         for lead in found:
             existing[lead["url"]] = lead
         st.session_state.web_leads = list(existing.values())[-100:]
         st.session_state.web_last_scan = f"{web_tier} / {web_theme}"
-        st.session_state.web_scan_message = f"Found {len(found)} distinct recent matches."
+        st.session_state.web_scan_message = f"Found {len(found)} distinct search matches."
         for error in search_errors:
             st.warning(error)
         if not found and search_errors:
@@ -134,6 +145,8 @@ if st.session_state.get("web_leads"):
     for i, lead in enumerate(reversed(st.session_state.web_leads)):
         with st.expander(f"{lead['title']} · {lead['theme']}"):
             st.write(f"{lead['provider']} · {lead['source']} · {lead['published']} · {lead['tier']}")
+            if lead["provider"] == "Parallel Search MCP" and lead.get("description"):
+                st.text(lead["description"])
             st.link_button("Open source", lead["url"])
             choices = ["New", "Investigate", "Watch", "Dismiss"]
             current = st.session_state.web_status.get(lead["url"], "New")

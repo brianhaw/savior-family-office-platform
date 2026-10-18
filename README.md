@@ -27,6 +27,20 @@ Links and dates are search-result
 metadata, not verified claims; open the original article and primary source.
 GDELT may rate-limit shared hosted traffic; if it does, Samson reports the
 source failure and continues with Firecrawl or Brave when a key is configured.
+For wider web research without another account or API key, select **Include
+Parallel web search (no API key)**, then **Search Internet sources**. This adds
+[Parallel Search MCP](https://docs.parallel.ai/integrations/mcp/search-mcp),
+using anonymous Fast mode, for the selected public theme only. The checkbox is
+off by default and remembered for this browser session; GDELT and configured
+Brave/Firecrawl sources keep working as before. Only the public theme and search
+terms are sent to Parallel, never uploads, holdings, or conversation text.
+Parallel excerpts, source URLs, and available publication dates appear in the
+research queue and are supplied to Samson as unverified source material.
+Freshness is a search preference, not a date filter; inspect each source date.
+Anonymous access has service limits. Failures are shown alongside results from
+other enabled sources; searches are not retried automatically. Clear the checkbox
+to stop future Parallel requests. Previously collected leads remain in the
+session; dismiss a lead to exclude it from Samson's analysis.
 With Firecrawl configured, "Find named companies" searches company-oriented
 announcements and labels a company only when the headline explicitly names its
 subject. These are unverified research leads, not available deals or buy ideas.
